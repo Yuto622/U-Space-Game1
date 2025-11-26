@@ -41,14 +41,19 @@ export interface MissionConfig {
   landingMethod: LandingMethod;
 }
 
+export interface BilingualText {
+  en: string;
+  ja: string;
+}
+
 export interface SimulationResult {
   success: boolean;
   score: number;
   sampleRetrieved: number; // grams
-  missionLog: string[];
-  failureReason?: string;
+  missionLog: BilingualText[];
+  failureReason?: BilingualText;
   scientificValue: number; // 0-100
-  feedback: string;
+  feedback: BilingualText;
 }
 
 export type GameStep = 'INTRO' | 'DESIGN' | 'PLAN' | 'SIMULATE';

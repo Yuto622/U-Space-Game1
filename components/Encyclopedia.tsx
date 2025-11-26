@@ -1,13 +1,14 @@
+
 import React from 'react';
-import { PARTS_CATALOG } from '../constants';
-import { PartCategory } from '../types';
+import { PartCategory, Part } from '../types';
 
 interface EncyclopediaProps {
   isOpen: boolean;
   onClose: () => void;
+  catalog: Part[]; // Added catalog prop
 }
 
-export const Encyclopedia: React.FC<EncyclopediaProps> = ({ isOpen, onClose }) => {
+export const Encyclopedia: React.FC<EncyclopediaProps> = ({ isOpen, onClose, catalog }) => {
   if (!isOpen) return null;
 
   return (
@@ -38,11 +39,16 @@ export const Encyclopedia: React.FC<EncyclopediaProps> = ({ isOpen, onClose }) =
             <div key={category} className="mb-6">
               <h3 className="text-lg font-bold text-blue-400 mb-4 border-l-4 border-blue-500 pl-3">{category}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {PARTS_CATALOG.filter(p => p.category === category).map(part => (
-                  <div key={part.id} className="bg-space-700 p-4 rounded-lg border border-space-600">
-                    <h4 className="font-bold text-white mb-1">{part.name}</h4>
-                    <p className="text-sm text-gray-400 mb-3 min-h-[40px]">{part.description}</p>
-                    <div className="text-xs space-y-1 text-gray-300">
+                {catalog.filter(p => p.category === category).map(part => (
+                  <div key={part.id} className="bg-space-700 p-4 rounded-lg border border-space-600 flex flex-col gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-space-800 rounded p-1 border border-space-600 flex items-center justify-center shrink-0">
+                         <span className="text-3xl">{part.icon}</span>
+                      </div>
+                      <h4 className="font-bold text-white leading-tight">{part.name}</h4>
+                    </div>
+                    <p className="text-sm text-gray-400 min-h-[40px]">{part.description}</p>
+                    <div className="text-xs space-y-1 text-gray-300 mt-auto pt-2 border-t border-space-600">
                       <div className="flex justify-between"><span>重量:</span> <span>{part.mass} kg</span></div>
                       <div className="flex justify-between"><span>コスト:</span> <span>${part.cost}M</span></div>
                       <div className="flex justify-between"><span>信頼性:</span> <span className={part.reliability >= 95 ? "text-green-400" : "text-yellow-400"}>{part.reliability}%</span></div>

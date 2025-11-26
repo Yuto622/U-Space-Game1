@@ -2,6 +2,15 @@
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { MissionConfig, SimulationResult } from "../types";
 
+const BILINGUAL_TEXT_SCHEMA: Schema = {
+  type: Type.OBJECT,
+  properties: {
+    en: { type: Type.STRING, description: "Text in English (Concise, technical style)" },
+    ja: { type: Type.STRING, description: "Text in Japanese (Friendly, educational style)" }
+  },
+  required: ["en", "ja"]
+};
+
 const SIMULATION_SCHEMA: Schema = {
   type: Type.OBJECT,
   properties: {
@@ -23,16 +32,16 @@ const SIMULATION_SCHEMA: Schema = {
     },
     missionLog: {
       type: Type.ARRAY,
-      items: { type: Type.STRING },
-      description: "A chronological list of 5-7 short sentences describing key events (Launch, Cruise, Mars Arrival, Descent, Sampling, Return, Re-entry)."
+      items: BILINGUAL_TEXT_SCHEMA,
+      description: "A chronological list of 5-7 short sentences describing key events."
     },
     failureReason: {
-      type: Type.STRING,
-      description: "If success is false, describe why it failed in one sentence. If true, leave empty string."
+      ...BILINGUAL_TEXT_SCHEMA,
+      description: "If success is false, describe why it failed in one sentence. If true, empty strings for both en/ja."
     },
     feedback: {
-      type: Type.STRING,
-      description: "Educational feedback about the design choices (e.g., 'Solar panels were insufficient for the distance from the sun', 'Good balance of cost and reliability')."
+      ...BILINGUAL_TEXT_SCHEMA,
+      description: "Educational feedback about the design choices."
     }
   },
   required: ["success", "score", "sampleRetrieved", "missionLog", "feedback", "scientificValue"]
@@ -57,7 +66,7 @@ export const runMissionSimulation = async (config: MissionConfig, launchScore: n
   else if (launchScore < 30) launchQuality = "Poor (Potential issues)";
 
   const prompt = `
-    You are a physics simulation engine for an educational game called 'U-Space'.
+    You are the game engine for 'U-Space', a Japanese educational game for children (target age: 10-14).
     Simulate a space mission to Mars' moon Phobos based on the user's spacecraft design and mission plan.
     
     Target: Phobos (Moon of Mars).
@@ -74,6 +83,15 @@ export const runMissionSimulation = async (config: MissionConfig, launchScore: n
     Launch Timing Score: ${launchScore}/100 (${launchQuality})
     * A 'Perfect' launch saves fuel and ensures perfect trajectory.
     * A 'Poor' launch might cause minor damage or fuel waste, increasing failure risk.
+
+    OUTPUT INSTRUCTIONS (CRITICAL):
+    1. **BILINGUAL**: Provide all text fields with both an English ('en') and Japanese ('ja') version.
+    2. **ENGLISH TONE**: Concise, semi-technical mission log style (e.g., "Orbit insertion confirmed.").
+    3. **JAPANESE TONE**: Friendly, encouraging, and educational for kids (Desu/Masu form).
+    4. **FEEDBACK STYLE**: 
+       - Explain *why* the mission succeeded or failed based on physics/engineering principles.
+       - If failed, give a hint for the next try.
+       - If succeeded, praise the specific design choices (e.g., "The ion engine was slow but very light!").
 
     SIMULATION RULES:
     1. Check for critical missing parts (Propulsion, Power, Comm, Sampler, Computer). If any are missing, the mission fails immediately at launch.
@@ -93,7 +111,7 @@ export const runMissionSimulation = async (config: MissionConfig, launchScore: n
       config: {
         responseMimeType: "application/json",
         responseSchema: SIMULATION_SCHEMA,
-        temperature: 0.7, // Some randomness for replayability
+        temperature: 0.7, 
       }
     });
 
@@ -109,9 +127,12 @@ export const runMissionSimulation = async (config: MissionConfig, launchScore: n
       score: 0,
       sampleRetrieved: 0,
       scientificValue: 0,
-      missionLog: ["通信エラー発生", "シミュレーションサーバーとの接続が切れました。"],
-      failureReason: "Simulation API Error",
-      feedback: "Check internet connection or API key."
+      missionLog: [
+        { en: "Communication Error", ja: "通信エラー発生" },
+        { en: "Lost connection to simulation server.", ja: "シミュレーションサーバーとの接続が切れました。" }
+      ],
+      failureReason: { en: "API Error", ja: "APIエラーが発生しました" },
+      feedback: { en: "Please check your internet connection.", ja: "インターネット接続を確認してください。" }
     };
   }
 };

@@ -6,6 +6,7 @@ import { SimulationView } from './components/SimulationView';
 import { Encyclopedia } from './components/Encyclopedia';
 import { GameStep, MissionConfig, PartCategory, Part, FlightProfile, LandingMethod, SimulationResult, SimulationPhase } from './types';
 import { runMissionSimulation } from './services/geminiService';
+import { generateRandomizedParts } from './constants';
 
 const DEFAULT_CONFIG: MissionConfig = {
   parts: {
@@ -31,6 +32,9 @@ function App() {
   const [currentStep, setCurrentStep] = useState<GameStep>('INTRO');
   const [config, setConfig] = useState<MissionConfig>(DEFAULT_CONFIG);
   
+  // Game Data State (Generated once per session)
+  const [partsCatalog, setPartsCatalog] = useState<Part[]>([]);
+
   // Simulation States
   const [simPhase, setSimPhase] = useState<SimulationPhase>('GAME');
   const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
@@ -40,13 +44,19 @@ function App() {
   // Design Phase State
   const [activeCategory, setActiveCategory] = useState<PartCategory>(PartCategory.PROPULSION);
 
+  // Initialize Parts on Mount
+  useEffect(() => {
+    // Generate fresh parts when the app loads
+    setPartsCatalog(generateRandomizedParts());
+  }, []);
+
   // Load saved state on mount
   useEffect(() => {
     const saved = localStorage.getItem('u-space-save');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        setConfig(parsed);
+        // Do not restore parts to ensure consistency with new random catalog
       } catch (e) {
         console.error("Failed to load save", e);
       }
@@ -96,6 +106,13 @@ function App() {
     setSimPhase('RESULT');
   };
 
+  const restartGame = () => {
+    // Regenerate parts for a new round
+    setPartsCatalog(generateRandomizedParts());
+    setConfig(DEFAULT_CONFIG);
+    setCurrentStep('DESIGN');
+  };
+
   const stats = getTotalStats();
 
   return (
@@ -132,7 +149,12 @@ function App() {
               予算内で最強の探査機を作り、サンプルを持ち帰ることはできるか？
             </p>
             <button 
-              onClick={() => setCurrentStep('DESIGN')}
+              onClick={() => {
+                // Ensure fresh parts on start
+                setPartsCatalog(generateRandomizedParts());
+                setConfig(DEFAULT_CONFIG);
+                setCurrentStep('DESIGN');
+              }}
               className="px-8 py-4 bg-space-accent hover:bg-blue-600 text-white text-xl font-bold rounded-full shadow-lg shadow-blue-500/30 transition-all hover:scale-105"
             >
               ミッション開始
@@ -152,8 +174,10 @@ function App() {
 
           {/* Left Side (Decorative & Back Button) */}
           <div className="absolute bottom-32 left-8 z-10 hidden lg:block">
-            {/* Forklift Decoration using simple emoji/shapes or just space */}
-            <div className="text-6xl transform scale-x-[-1] mb-4">🚜</div>
+            {/* Forklift Decoration */}
+            <div className="text-6xl transform scale-x-[-1] mb-4">
+               🚜
+            </div>
             
             <button 
                onClick={() => setCurrentStep('INTRO')}
@@ -173,18 +197,24 @@ function App() {
             {/* The Stand */}
             <div className="relative z-0 flex flex-col items-center animate-bounce-slow">
               {/* Active Part Visual */}
-              <div className="w-48 h-48 bg-slate-800/80 rounded-full border-4 border-slate-600 flex items-center justify-center text-8xl shadow-2xl backdrop-blur">
-                {config.parts[activeCategory]?.icon || <span className="text-slate-600 text-6xl">?</span>}
+              <div className="w-64 h-64 bg-slate-800/80 rounded-full border-4 border-slate-600 flex items-center justify-center shadow-2xl backdrop-blur relative overflow-hidden">
+                {config.parts[activeCategory] ? (
+                  <span className="text-[10rem] filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]">
+                    {config.parts[activeCategory]?.icon}
+                  </span>
+                ) : (
+                  <span className="text-slate-600 text-8xl font-bold opacity-30">?</span>
+                )}
               </div>
               {/* Stand Pedestal */}
-              <div className="w-16 h-32 bg-slate-600 mt-[-10px]"></div>
-              <div className="w-40 h-8 bg-slate-700 rounded-full mt-[-4px] shadow-lg"></div>
+              <div className="w-24 h-40 bg-slate-600 mt-[-20px]"></div>
+              <div className="w-64 h-12 bg-slate-700 rounded-full mt-[-6px] shadow-lg"></div>
             </div>
 
             {/* Slots Navigation (The black boxes in screenshot) */}
-            <div className="absolute bottom-32 flex items-center gap-1 z-20">
+            <div className="absolute bottom-32 flex items-center gap-2 z-20">
                {/* Connecting Rod */}
-               <div className="absolute top-1/2 left-0 w-full h-4 bg-gray-600 -z-10 rounded"></div>
+               <div className="absolute top-1/2 left-0 w-full h-6 bg-gray-600 -z-10 rounded border-y border-gray-700 shadow-inner"></div>
                
                {CATEGORY_ORDER.map((cat, index) => {
                  const isFilled = !!config.parts[cat];
@@ -201,7 +231,7 @@ function App() {
                     `}
                    >
                      {isFilled && (
-                       <span className="text-3xl md:text-4xl">{config.parts[cat]?.icon}</span>
+                       <span className="text-4xl">{config.parts[cat]?.icon}</span>
                      )}
                      {!isFilled && !isActive && (
                         <div className="w-full h-full flex items-center justify-center opacity-20 text-white font-bold text-xl">{index+1}</div>
@@ -222,7 +252,9 @@ function App() {
           <div className="w-full md:w-80 lg:w-96 bg-slate-200 border-l-4 border-slate-400 p-4 flex flex-col shadow-2xl relative z-20">
             {/* Crane Decoration */}
             <div className="absolute top-[-20px] left-10 w-4 h-20 bg-orange-400 rounded-b-lg border-2 border-orange-600 -z-10"></div>
-            <div className="absolute top-10 left-8 w-8 h-8 rounded-full border-4 border-orange-600 text-orange-600 flex items-center justify-center bg-transparent -z-10">C</div>
+            <div className="absolute top-10 left-8 w-12 h-12 rounded-lg border-4 border-orange-600 bg-orange-400 flex items-center justify-center -z-10 shadow-md">
+               <div className="text-2xl text-orange-900 font-bold">C</div>
+            </div>
             
             <h3 className="text-xl font-black text-slate-700 mb-4 uppercase tracking-tighter flex items-center gap-2 border-b-2 border-slate-300 pb-2">
               <span className="w-4 h-4 rounded-full bg-blue-500 animate-pulse"></span>
@@ -234,6 +266,7 @@ function App() {
                   category={activeCategory}
                   selectedPartId={config.parts[activeCategory]?.id}
                   onSelect={handlePartSelect}
+                  parts={partsCatalog} 
                />
             </div>
             
@@ -250,9 +283,9 @@ function App() {
           <div className="absolute bottom-4 left-4 right-4 md:left-20 md:right-20 lg:right-96 lg:left-20 z-30">
             <div className="bg-blue-900/95 border-2 border-blue-400 rounded-xl p-4 flex items-center gap-4 shadow-2xl text-white min-h-[100px]">
               {/* Character Avatar */}
-              <div className="w-20 h-20 bg-yellow-400 rounded-lg border-4 border-white shrink-0 flex items-center justify-center text-4xl relative overflow-hidden">
-                🤖
-                <div className="absolute bottom-0 w-full h-2 bg-black opacity-20"></div>
+              <div className="w-20 h-20 bg-yellow-400 rounded-lg border-4 border-white shrink-0 flex items-center justify-center shadow-lg relative overflow-hidden">
+                <span className="text-5xl">🤖</span>
+                <div className="absolute bottom-0 w-full h-4 bg-black opacity-10"></div>
               </div>
               
               {/* Text */}
@@ -263,14 +296,14 @@ function App() {
                       {isConfigComplete() && (
                         <button 
                           onClick={() => setCurrentStep('PLAN')}
-                          className="bg-green-500 hover:bg-green-400 text-white text-xs font-bold px-4 py-2 rounded-full animate-bounce shadow-lg"
+                          className="bg-green-500 hover:bg-green-400 text-white text-xs font-bold px-4 py-2 rounded-full animate-bounce shadow-lg flex items-center gap-1"
                         >
-                          次へすすむ &rarr;
+                          次へすすむ <span>➡️</span>
                         </button>
                       )}
                    </div>
                  </div>
-                 <p className="text-lg font-bold leading-relaxed">
+                 <p className="text-lg font-bold leading-relaxed drop-shadow-md">
                    {config.parts[activeCategory] 
                      ? `「${config.parts[activeCategory]?.name}」を装備したよ！次はどうする？`
                      : `${activeCategory}を選ぼう！ これがないとミッションが始まらないよ。`
@@ -279,7 +312,7 @@ function App() {
               </div>
               
               {/* Triangle Pointer */}
-              <div className="absolute bottom-2 right-1/2 translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-white animate-pulse"></div>
+              <div className="absolute bottom-[-10px] left-10 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-blue-400"></div>
             </div>
           </div>
 
@@ -313,9 +346,9 @@ function App() {
                   </button>
                   <button 
                     onClick={goToSimulation}
-                    className="flex-1 md:flex-none px-8 py-3 bg-green-600 hover:bg-green-500 text-white rounded-lg font-bold shadow-lg shadow-green-900/20 transition-all hover:scale-105"
+                    className="flex-1 md:flex-none px-8 py-3 bg-green-600 hover:bg-green-500 text-white rounded-lg font-bold shadow-lg shadow-green-900/20 transition-all hover:scale-105 flex items-center justify-center gap-2"
                   >
-                    ミッション実行！ 🚀
+                    <span>🚀</span> ミッション実行！
                   </button>
                 </div>
               </div>
@@ -330,13 +363,13 @@ function App() {
               phase={simPhase}
               simulationData={simulationResult} 
               onLaunchComplete={handleLaunchComplete}
-              onRetry={() => setCurrentStep('DESIGN')} 
+              onRetry={restartGame} 
               onBackToLab={() => setCurrentStep('DESIGN')}
            />
         </div>
       )}
 
-      <Encyclopedia isOpen={showEncyclopedia} onClose={() => setShowEncyclopedia(false)} />
+      <Encyclopedia isOpen={showEncyclopedia} onClose={() => setShowEncyclopedia(false)} catalog={partsCatalog} />
     </div>
   );
 }
