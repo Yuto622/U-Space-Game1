@@ -163,103 +163,129 @@ function App() {
         </main>
       )}
 
-      {/* DESIGN STEP - HANGAR VIEW */}
+      {/* DESIGN STEP - HANGAR VIEW (Responsive) */}
       {currentStep === 'DESIGN' && (
-        <div className="relative w-full h-screen overflow-hidden flex flex-col md:flex-row bg-slate-300">
+        <div className="min-h-screen w-full flex flex-col lg:flex-row bg-slate-300 overflow-x-hidden">
           
-          {/* Top Left: Step Indicator */}
-          <div className="absolute top-6 left-6 z-10 text-yellow-400 font-bold text-2xl drop-shadow-md tracking-wider flex items-center gap-2" style={{textShadow: '2px 2px 0px #000'}}>
-             <span>ステップ 1</span>
-          </div>
+          {/* Main Stage: Visualization & Navigation */}
+          <div className="flex-1 relative flex flex-col bg-gradient-to-b from-slate-300 to-slate-400">
+            {/* Background Pattern */}
+            <div className="absolute inset-0 opacity-10 pointer-events-none" style={{backgroundImage: 'radial-gradient(#475569 2px, transparent 2px)', backgroundSize: '40px 40px'}}></div>
+            <div className="absolute bottom-0 w-full h-1/3 bg-slate-400 border-t border-slate-500 pointer-events-none"></div>
 
-          {/* Left Side (Decorative & Back Button) */}
-          <div className="absolute bottom-32 left-8 z-10 hidden lg:block">
-            {/* Forklift Decoration */}
-            <div className="text-6xl transform scale-x-[-1] mb-4">
-               🚜
+            {/* Header / Back Button */}
+            <div className="relative z-10 flex justify-between items-start p-6">
+               <div className="text-yellow-400 font-bold text-2xl drop-shadow-md tracking-wider flex items-center gap-2" style={{textShadow: '2px 2px 0px #000'}}>
+                 <span>ステップ 1</span>
+               </div>
+               <button 
+                  onClick={() => setCurrentStep('INTRO')}
+                  className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded-lg border-b-4 border-pink-700 active:border-b-0 active:translate-y-1 shadow-lg text-sm"
+               >
+                  研究所へもどる
+               </button>
+            </div>
+
+            {/* Center Content: Stand & Slots */}
+            <div className="flex-1 flex flex-col items-center justify-center py-10 gap-8 z-10">
+              
+              {/* The Stand */}
+              <div className="relative flex flex-col items-center animate-bounce-slow transform scale-75 md:scale-100">
+                <div className="w-64 h-64 bg-slate-800/80 rounded-full border-4 border-slate-600 flex items-center justify-center shadow-2xl backdrop-blur relative overflow-hidden">
+                  {config.parts[activeCategory] ? (
+                    <span className="text-[10rem] filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]">
+                      {config.parts[activeCategory]?.icon}
+                    </span>
+                  ) : (
+                    <span className="text-slate-600 text-8xl font-bold opacity-30">?</span>
+                  )}
+                </div>
+                <div className="w-24 h-40 bg-slate-600 mt-[-20px]"></div>
+                <div className="w-64 h-12 bg-slate-700 rounded-full mt-[-6px] shadow-lg"></div>
+              </div>
+
+              {/* Slots Navigation */}
+              <div className="flex flex-wrap justify-center gap-3 px-4 max-w-3xl">
+                 {/* Connecting Rod (Visual only, tricky to do responsively perfectly, simplified here) */}
+                 
+                 {CATEGORY_ORDER.map((cat, index) => {
+                   const isFilled = !!config.parts[cat];
+                   const isActive = activeCategory === cat;
+                   return (
+                     <div 
+                      key={cat}
+                      onClick={() => setActiveCategory(cat)}
+                      className={`
+                        w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 border-4 rounded-lg cursor-pointer transition-all transform flex items-center justify-center relative
+                        ${isActive 
+                          ? 'bg-slate-800 border-red-500 -translate-y-2 shadow-xl scale-110 z-10' 
+                          : 'bg-slate-700 border-slate-900 hover:scale-105'}
+                      `}
+                     >
+                       {isFilled && (
+                         <span className="text-2xl sm:text-3xl md:text-4xl">{config.parts[cat]?.icon}</span>
+                       )}
+                       {!isFilled && !isActive && (
+                          <div className="w-full h-full flex items-center justify-center opacity-20 text-white font-bold text-xl">{index+1}</div>
+                       )}
+                       {isActive && (
+                         <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] md:text-xs font-bold px-2 py-1 rounded whitespace-nowrap shadow">
+                           {cat}
+                         </div>
+                       )}
+                     </div>
+                   )
+                 })}
+              </div>
+            </div>
+
+            {/* Dialog Box (Flows at bottom on mobile, overlay on desktop) */}
+            <div className="p-4 w-full max-w-4xl mx-auto lg:absolute lg:bottom-4 lg:left-1/2 lg:-translate-x-1/2 z-20">
+              <div className="bg-blue-900/95 border-2 border-blue-400 rounded-xl p-4 flex items-center gap-4 shadow-2xl text-white min-h-[100px]">
+                {/* Character Avatar */}
+                <div className="w-16 h-16 md:w-20 md:h-20 bg-yellow-400 rounded-lg border-4 border-white shrink-0 flex items-center justify-center shadow-lg relative overflow-hidden">
+                  <span className="text-4xl md:text-5xl">🤖</span>
+                </div>
+                
+                {/* Text */}
+                <div className="flex-1">
+                   <div className="flex justify-between items-start mb-1">
+                     <span className="text-[10px] md:text-xs text-blue-300 font-bold tracking-widest uppercase">SYSTEM MESSAGE</span>
+                     <div className="flex gap-1">
+                        {isConfigComplete() && (
+                          <button 
+                            onClick={() => setCurrentStep('PLAN')}
+                            className="bg-green-500 hover:bg-green-400 text-white text-xs font-bold px-4 py-2 rounded-full animate-bounce shadow-lg flex items-center gap-1"
+                          >
+                            次へ <span>➡️</span>
+                          </button>
+                        )}
+                     </div>
+                   </div>
+                   <p className="text-sm md:text-lg font-bold leading-relaxed drop-shadow-md">
+                     {config.parts[activeCategory] 
+                       ? `「${config.parts[activeCategory]?.name}」を装備したよ！`
+                       : `${activeCategory}を選ぼう！`
+                     }
+                   </p>
+                </div>
+              </div>
             </div>
             
-            <button 
-               onClick={() => setCurrentStep('INTRO')}
-               className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-6 rounded-lg border-b-4 border-pink-700 active:border-b-0 active:translate-y-1 shadow-lg flex flex-col items-center"
-            >
-               <span className="text-xs opacity-80">けんきゅうじょ</span>
-               <span>研究所へもどる</span>
-            </button>
-          </div>
-          
-          {/* Center Stage: Visualization */}
-          <div className="flex-1 relative flex flex-col items-center justify-center pb-32 bg-gradient-to-b from-slate-300 to-slate-400">
-            {/* Background elements to look like a room */}
-            <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(#475569 2px, transparent 2px)', backgroundSize: '40px 40px'}}></div>
-            <div className="absolute bottom-0 w-full h-1/3 bg-slate-400 border-t border-slate-500"></div>
-
-            {/* The Stand */}
-            <div className="relative z-0 flex flex-col items-center animate-bounce-slow">
-              {/* Active Part Visual */}
-              <div className="w-64 h-64 bg-slate-800/80 rounded-full border-4 border-slate-600 flex items-center justify-center shadow-2xl backdrop-blur relative overflow-hidden">
-                {config.parts[activeCategory] ? (
-                  <span className="text-[10rem] filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]">
-                    {config.parts[activeCategory]?.icon}
-                  </span>
-                ) : (
-                  <span className="text-slate-600 text-8xl font-bold opacity-30">?</span>
-                )}
-              </div>
-              {/* Stand Pedestal */}
-              <div className="w-24 h-40 bg-slate-600 mt-[-20px]"></div>
-              <div className="w-64 h-12 bg-slate-700 rounded-full mt-[-6px] shadow-lg"></div>
-            </div>
-
-            {/* Slots Navigation (The black boxes in screenshot) */}
-            <div className="absolute bottom-32 flex items-center gap-2 z-20">
-               {/* Connecting Rod */}
-               <div className="absolute top-1/2 left-0 w-full h-6 bg-gray-600 -z-10 rounded border-y border-gray-700 shadow-inner"></div>
-               
-               {CATEGORY_ORDER.map((cat, index) => {
-                 const isFilled = !!config.parts[cat];
-                 const isActive = activeCategory === cat;
-                 return (
-                   <div 
-                    key={cat}
-                    onClick={() => setActiveCategory(cat)}
-                    className={`
-                      w-20 h-20 md:w-24 md:h-24 border-4 rounded-lg cursor-pointer transition-all transform hover:scale-110 flex items-center justify-center relative
-                      ${isActive 
-                        ? 'bg-slate-800 border-red-500 -translate-y-4 shadow-xl' 
-                        : 'bg-slate-700 border-slate-900'}
-                    `}
-                   >
-                     {isFilled && (
-                       <span className="text-4xl">{config.parts[cat]?.icon}</span>
-                     )}
-                     {!isFilled && !isActive && (
-                        <div className="w-full h-full flex items-center justify-center opacity-20 text-white font-bold text-xl">{index+1}</div>
-                     )}
-                     {/* Label on Hover/Active */}
-                     {isActive && (
-                       <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-black text-xs font-bold px-2 py-1 rounded whitespace-nowrap shadow">
-                         {cat}
-                       </div>
-                     )}
-                   </div>
-                 )
-               })}
-            </div>
+            {/* Forklift Decoration (Hidden on mobile) */}
+            <div className="absolute bottom-32 left-8 z-0 hidden xl:block text-6xl transform scale-x-[-1] opacity-80">🚜</div>
           </div>
 
           {/* Right Panel: Part Selector */}
-          <div className="w-full md:w-80 lg:w-96 bg-slate-200 border-l-4 border-slate-400 p-4 flex flex-col shadow-2xl relative z-20">
-            {/* Crane Decoration */}
-            <div className="absolute top-[-20px] left-10 w-4 h-20 bg-orange-400 rounded-b-lg border-2 border-orange-600 -z-10"></div>
-            <div className="absolute top-10 left-8 w-12 h-12 rounded-lg border-4 border-orange-600 bg-orange-400 flex items-center justify-center -z-10 shadow-md">
-               <div className="text-2xl text-orange-900 font-bold">C</div>
+          <div className="w-full lg:w-96 bg-slate-200 border-t-4 lg:border-t-0 lg:border-l-4 border-slate-400 p-4 flex flex-col shadow-2xl z-30 lg:h-screen lg:sticky lg:top-0 h-[500px]">
+            <div className="flex justify-between items-center mb-4 border-b-2 border-slate-300 pb-2">
+               <h3 className="text-xl font-black text-slate-700 uppercase tracking-tighter flex items-center gap-2">
+                 <span className="w-4 h-4 rounded-full bg-blue-500 animate-pulse"></span>
+                 パーツ倉庫
+               </h3>
+               {/* Mobile Crane Icon */}
+               <div className="w-8 h-8 rounded border-2 border-orange-600 bg-orange-400 flex items-center justify-center text-orange-900 font-bold">C</div>
             </div>
-            
-            <h3 className="text-xl font-black text-slate-700 mb-4 uppercase tracking-tighter flex items-center gap-2 border-b-2 border-slate-300 pb-2">
-              <span className="w-4 h-4 rounded-full bg-blue-500 animate-pulse"></span>
-              パーツ倉庫
-            </h3>
             
             <div className="flex-1 overflow-hidden relative">
                <PartSelector 
@@ -268,51 +294,6 @@ function App() {
                   onSelect={handlePartSelect}
                   parts={partsCatalog} 
                />
-            </div>
-            
-            {/* Mobile "Back to Lab" for small screens */}
-             <button 
-               onClick={() => setCurrentStep('INTRO')}
-               className="lg:hidden mt-4 w-full bg-pink-500 text-white font-bold py-2 rounded"
-            >
-               研究所へもどる
-            </button>
-          </div>
-
-          {/* Bottom Dialog Box (Overlay) */}
-          <div className="absolute bottom-4 left-4 right-4 md:left-20 md:right-20 lg:right-96 lg:left-20 z-30">
-            <div className="bg-blue-900/95 border-2 border-blue-400 rounded-xl p-4 flex items-center gap-4 shadow-2xl text-white min-h-[100px]">
-              {/* Character Avatar */}
-              <div className="w-20 h-20 bg-yellow-400 rounded-lg border-4 border-white shrink-0 flex items-center justify-center shadow-lg relative overflow-hidden">
-                <span className="text-5xl">🤖</span>
-                <div className="absolute bottom-0 w-full h-4 bg-black opacity-10"></div>
-              </div>
-              
-              {/* Text */}
-              <div className="flex-1">
-                 <div className="flex justify-between items-start mb-1">
-                   <span className="text-xs text-blue-300 font-bold tracking-widest uppercase">SYSTEM MESSAGE</span>
-                   <div className="flex gap-1">
-                      {isConfigComplete() && (
-                        <button 
-                          onClick={() => setCurrentStep('PLAN')}
-                          className="bg-green-500 hover:bg-green-400 text-white text-xs font-bold px-4 py-2 rounded-full animate-bounce shadow-lg flex items-center gap-1"
-                        >
-                          次へすすむ <span>➡️</span>
-                        </button>
-                      )}
-                   </div>
-                 </div>
-                 <p className="text-lg font-bold leading-relaxed drop-shadow-md">
-                   {config.parts[activeCategory] 
-                     ? `「${config.parts[activeCategory]?.name}」を装備したよ！次はどうする？`
-                     : `${activeCategory}を選ぼう！ これがないとミッションが始まらないよ。`
-                   }
-                 </p>
-              </div>
-              
-              {/* Triangle Pointer */}
-              <div className="absolute bottom-[-10px] left-10 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-blue-400"></div>
             </div>
           </div>
 

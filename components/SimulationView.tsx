@@ -132,22 +132,22 @@ export const SimulationView: React.FC<SimulationViewProps> = ({
   // --- RENDER: GAME & LOADING PHASE (Unified) ---
   if (phase === 'GAME' || phase === 'LOADING') {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[80vh] w-full max-w-5xl mx-auto px-4">
+      <div className="flex flex-col items-center justify-center min-h-screen py-8 w-full max-w-5xl mx-auto px-4">
         
         {/* Monitor Frame */}
-        <div className="relative bg-slate-300 p-4 rounded-3xl border-b-8 border-r-8 border-slate-400 shadow-2xl w-full">
+        <div className="relative bg-slate-300 p-2 md:p-4 rounded-3xl border-b-8 border-r-8 border-slate-400 shadow-2xl w-full">
           
           {/* Header Plate */}
-          <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-400 border-4 border-slate-300 px-8 py-2 rounded-lg shadow-lg z-10">
+          <div className="absolute -top-4 md:-top-6 left-1/2 -translate-x-1/2 bg-slate-400 border-4 border-slate-300 px-6 py-1 md:px-8 md:py-2 rounded-lg shadow-lg z-10 whitespace-nowrap">
              <div className="flex items-center gap-2">
-               <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
-               <h2 className="text-xl md:text-2xl font-black text-white tracking-widest drop-shadow-md">運用訓練場</h2>
-               <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
+               <div className="w-1 h-1 md:w-2 md:h-2 bg-gray-600 rounded-full"></div>
+               <h2 className="text-sm md:text-2xl font-black text-white tracking-widest drop-shadow-md">運用訓練場</h2>
+               <div className="w-1 h-1 md:w-2 md:h-2 bg-gray-600 rounded-full"></div>
              </div>
           </div>
 
           {/* Screen */}
-          <div className="bg-black rounded-xl overflow-hidden border-4 border-slate-600 shadow-inner relative h-[400px] md:h-[500px]">
+          <div className="bg-black rounded-xl overflow-hidden border-4 border-slate-600 shadow-inner relative h-[300px] md:h-[500px]">
             {/* Space Background */}
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-50"></div>
             <div className="absolute inset-0 bg-gradient-to-b from-slate-900 to-blue-900/40"></div>
@@ -158,40 +158,36 @@ export const SimulationView: React.FC<SimulationViewProps> = ({
             <div className="absolute bottom-20 right-20 w-1 h-1 bg-white rounded-full animate-pulse delay-75"></div>
 
             {/* Planet Earth */}
-            <div className="absolute bottom-[-200px] left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-blue-500 rounded-full shadow-[0_0_50px_rgba(59,130,246,0.5)] overflow-hidden">
+            <div className="absolute bottom-[-100px] md:bottom-[-200px] left-1/2 -translate-x-1/2 w-[300px] h-[300px] md:w-[600px] md:h-[600px] bg-blue-500 rounded-full shadow-[0_0_50px_rgba(59,130,246,0.5)] overflow-hidden">
                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.2),transparent)]"></div>
-               {/* Continents approximation */}
-               <div className="absolute top-10 left-20 w-40 h-20 bg-green-500/30 rounded-full blur-xl"></div>
-               <div className="absolute top-20 right-32 w-60 h-40 bg-green-600/20 rounded-full blur-xl"></div>
             </div>
 
             {/* Probe Model */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-bounce-slow z-10">
-              <span className="text-8xl filter drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]">🛰️</span>
+              <span className="text-6xl md:text-8xl filter drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]">🛰️</span>
             </div>
 
             {/* LOADING OVERLAY */}
             {phase === 'LOADING' && (
               <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-40 flex flex-col items-center justify-center animate-fade-in">
-                 <div className="w-16 h-16 border-4 border-t-blue-500 border-r-blue-500 border-b-transparent border-l-transparent rounded-full animate-spin mb-4"></div>
-                 <div className="text-blue-400 font-mono text-xl animate-pulse">COMPUTING TRAJECTORY...</div>
-                 <div className="text-gray-400 text-sm mt-2">通信確立中</div>
+                 <div className="w-12 h-12 md:w-16 md:h-16 border-4 border-t-blue-500 border-r-blue-500 border-b-transparent border-l-transparent rounded-full animate-spin mb-4"></div>
+                 <div className="text-blue-400 font-mono text-lg md:text-xl animate-pulse">COMPUTING...</div>
               </div>
             )}
 
             {/* Timing Bar UI Overlay */}
-            <div className="absolute bottom-10 left-10 right-10 md:left-20 md:right-20 bg-slate-900/80 backdrop-blur border border-slate-500 p-6 rounded-2xl shadow-2xl flex flex-col items-center gap-4 z-20">
+            <div className="absolute bottom-4 left-4 right-4 md:bottom-10 md:left-20 md:right-20 bg-slate-900/80 backdrop-blur border border-slate-500 p-4 md:p-6 rounded-2xl shadow-2xl flex flex-col items-center gap-2 md:gap-4 z-20">
                
                {/* Result Message Overlay */}
                {gameResult && phase !== 'LOADING' && (
-                 <div className="absolute -top-20 left-1/2 -translate-x-1/2 bg-white/90 px-6 py-3 rounded-xl shadow-xl animate-fade-in-up whitespace-nowrap z-50">
-                    <span className={`text-2xl font-black ${gameResult.score >= 80 ? 'text-red-500' : 'text-blue-600'}`}>
+                 <div className="absolute -top-16 md:-top-20 left-1/2 -translate-x-1/2 bg-white/90 px-4 py-2 md:px-6 md:py-3 rounded-xl shadow-xl animate-fade-in-up whitespace-nowrap z-50">
+                    <span className={`text-xl md:text-2xl font-black ${gameResult.score >= 80 ? 'text-red-500' : 'text-blue-600'}`}>
                       {gameResult.message}
                     </span>
                  </div>
                )}
 
-               <div className="w-full h-12 bg-slate-800 rounded-full border-4 border-slate-600 relative overflow-hidden shadow-inner">
+               <div className="w-full h-8 md:h-12 bg-slate-800 rounded-full border-4 border-slate-600 relative overflow-hidden shadow-inner">
                  {/* Gradient Bar */}
                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-green-400 to-red-500 opacity-80"></div>
                  
@@ -201,7 +197,7 @@ export const SimulationView: React.FC<SimulationViewProps> = ({
                     style={{ left: `${TARGET_POS}%`, width: '40px', marginLeft: '-20px' }}
                  >
                     <div className="w-1 h-full bg-white/50 absolute"></div>
-                    <span className="text-3xl drop-shadow-md relative z-10 animate-pulse">⭐</span>
+                    <span className="text-2xl md:text-3xl drop-shadow-md relative z-10 animate-pulse">⭐</span>
                  </div>
                  
                  {/* Cursor */}
@@ -211,56 +207,56 @@ export const SimulationView: React.FC<SimulationViewProps> = ({
                  ></div>
                </div>
 
-               <div className="flex justify-between w-full text-white font-bold px-2">
+               <div className="flex justify-between w-full text-white font-bold px-2 text-xs md:text-base">
                   <span>LAUNCH START</span>
-                  <span className="text-pink-400 text-xl italic">MAX</span>
+                  <span className="text-pink-400 text-lg md:text-xl italic">MAX</span>
                </div>
             </div>
 
             {/* Top Right Logo */}
-            <div className="absolute top-4 right-4 bg-blue-900 border-2 border-blue-400 px-4 py-1 skew-x-[-10deg] shadow-lg">
-               <span className="font-black text-blue-200 text-xl italic skew-x-[10deg] inline-block">MMX</span>
+            <div className="absolute top-4 right-4 bg-blue-900 border-2 border-blue-400 px-2 py-1 md:px-4 skew-x-[-10deg] shadow-lg">
+               <span className="font-black text-blue-200 text-sm md:text-xl italic skew-x-[10deg] inline-block">MMX</span>
             </div>
 
           </div>
 
           {/* Control Panel / Desk */}
-          <div className="mt-4 flex items-end justify-between relative">
+          <div className="mt-4 flex flex-col md:flex-row items-end justify-between relative gap-4">
              {/* Back Button */}
              <button 
                 onClick={onBackToLab}
-                className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-6 rounded-lg border-b-4 border-pink-700 active:border-b-0 active:translate-y-1 shadow-lg flex flex-col items-center shrink-0"
+                className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 md:py-3 md:px-6 rounded-lg border-b-4 border-pink-700 active:border-b-0 active:translate-y-1 shadow-lg flex flex-col items-center shrink-0 w-full md:w-auto"
              >
                 <span className="text-xs opacity-80">けんきゅうじょ</span>
                 <span>研究所へもどる</span>
              </button>
 
              {/* Character Dialog */}
-             <div className="absolute left-1/2 -translate-x-1/2 bottom-0 w-full max-w-xl mx-4 z-30">
-                <div className="bg-blue-900/95 border-2 border-blue-400 rounded-xl p-4 shadow-2xl text-white flex gap-4 items-center">
+             <div className="w-full relative md:absolute md:left-1/2 md:-translate-x-1/2 md:bottom-0 md:max-w-xl z-30">
+                <div className="bg-blue-900/95 border-2 border-blue-400 rounded-xl p-3 md:p-4 shadow-2xl text-white flex gap-3 md:gap-4 items-center">
                    <div className="flex-1">
-                      <div className="flex justify-between text-xs text-blue-300 mb-1">
+                      <div className="flex justify-between text-[10px] md:text-xs text-blue-300 mb-1">
                         <span>GUIDANCE</span>
                         <span>TARGET: MARS</span>
                       </div>
-                      <p className="text-lg font-bold leading-relaxed">
-                        赤いバー(棒)を星のところで止められれば火星まで到達できそうだよ！
-                        <span className="block text-sm text-yellow-300 mt-1 font-normal">(スペースキー または クリック でストップ！)</span>
+                      <p className="text-sm md:text-lg font-bold leading-relaxed">
+                        赤いバーを星のところで止めろ！
+                        <span className="block text-xs md:text-sm text-yellow-300 mt-1 font-normal">(スペースキー または STOPボタン)</span>
                       </p>
                    </div>
                    <button 
                      onClick={stopGame}
                      disabled={!gameActive}
                      className={`
-                       bg-red-500 text-white font-black text-xl px-6 py-4 rounded-full border-b-4 border-red-700 shadow-lg transition-transform
+                       bg-red-500 text-white font-black text-sm md:text-xl px-4 py-3 md:px-6 md:py-4 rounded-full border-b-4 border-red-700 shadow-lg transition-transform
                        ${!gameActive ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}
                      `}
                    >
                      STOP!
                    </button>
                 </div>
-                {/* Pointer */}
-                <div className="w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-blue-900 mx-auto"></div>
+                {/* Pointer for Desktop */}
+                <div className="hidden md:block w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-blue-900 mx-auto"></div>
              </div>
 
              {/* Character Image */}
@@ -281,9 +277,9 @@ export const SimulationView: React.FC<SimulationViewProps> = ({
   const earnedItem = getEarnedItem(simulationData.score);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 text-gray-200">
+    <div className="max-w-4xl mx-auto space-y-8 text-gray-200 pb-20 px-4">
       {/* Header Status */}
-      <div className="text-center space-y-2">
+      <div className="text-center space-y-2 mt-8">
         <h2 className="text-3xl font-bold text-white">ミッションレポート</h2>
         <div className={`inline-block px-4 py-1 rounded-full text-sm font-bold ${
           isFinished 
@@ -337,15 +333,15 @@ export const SimulationView: React.FC<SimulationViewProps> = ({
           {isFinished && (
             <div className="space-y-6">
               
-              {/* Special Success Visualization (Big Screen Style) */}
+              {/* Special Success Visualization */}
               <div className="bg-black border-4 border-yellow-500 rounded-xl p-2 shadow-[0_0_30px_rgba(234,179,8,0.3)] relative overflow-hidden">
                  {/* Shiny Background */}
                  <div className="absolute inset-0 bg-[conic-gradient(from_0deg_at_50%_50%,#1e293b_0deg,#0f172a_120deg,#1e293b_240deg,#0f172a_360deg)] animate-spin-slow opacity-50"></div>
                  <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.1),transparent)]"></div>
 
                  {/* Characters */}
-                 <span className="absolute left-2 top-10 text-6xl animate-bounce-slow">🚀</span>
-                 <span className="absolute right-2 top-10 text-6xl animate-pulse">🛰️</span>
+                 <span className="absolute left-2 top-10 text-4xl md:text-6xl animate-bounce-slow">🚀</span>
+                 <span className="absolute right-2 top-10 text-4xl md:text-6xl animate-pulse">🛰️</span>
 
                  <div className="relative z-10 flex flex-col items-center py-6">
                     {/* Title */}
@@ -356,7 +352,7 @@ export const SimulationView: React.FC<SimulationViewProps> = ({
                     {/* Reward Item Box */}
                     {simulationData.success && (
                        <div className="bg-green-300/80 border-4 border-green-500 rounded-lg p-6 mb-4 shadow-lg animate-fade-in-up transform hover:scale-105 transition-transform duration-500 relative">
-                          <span className="text-8xl filter drop-shadow-2xl">{earnedItem.icon}</span>
+                          <span className="text-6xl md:text-8xl filter drop-shadow-2xl">{earnedItem.icon}</span>
                           <div className="absolute top-0 right-0 p-1">
                              <span className="text-yellow-200 text-xl">✨</span>
                           </div>
