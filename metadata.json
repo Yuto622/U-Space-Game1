@@ -1,0 +1,5 @@
+{
+  "name": "U-Space: Phobos Mission",
+  "description": "An educational space engineering simulation game where you design a probe to retrieve samples from Phobos, the moon of Mars.",
+  "requestFramePermissions": []
+}
